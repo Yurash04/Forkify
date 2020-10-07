@@ -10,16 +10,30 @@ export default class Likes {
             img
         };
         this.likes.push(like);
+        // Persist the data into the localStorage
+        this.persistData();
         return like;
     };
     deleteLike(id) {
         const index = this.likes.findIndex(el => el.id === id);
-        return this.likes.splice(index, 1);
+        // Persist the data into the localStorage
+
+        this.likes.splice(index, 1);
+        this.persistData();
     };
     isLiked(id) {
         return this.likes.findIndex(el => el.id === id) !== -1;
     };
     getNumLikes() {
-        this.likes.length;
+        return this.likes.length;
+    };
+    persistData() {
+        localStorage.setItem('likes', JSON.stringify(this.likes));
+    };
+    readStorage() {
+        const storage = JSON.parse(localStorage.getItem('likes'));
+
+        // Restore the likes from the local storage
+        if (storage) this.likes = storage;
     };
 }

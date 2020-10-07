@@ -5,7 +5,7 @@ import Likes from './models/Likes';
 import * as searchView from './views/searchView';
 import * as recipeView from './views/recipeView';
 import * as listView from './views/listView';
-// import * as likesView from './views/likesView';
+import * as likesView from './views/likesView';
 import { elements, renderLoader, clearLoader } from './views/base';
 
 
@@ -17,7 +17,6 @@ import { elements, renderLoader, clearLoader } from './views/base';
 * - Liked recipes
 */
 const state = {};
-window.state = state;
 
 // SEARCH CONTROLLER
 
@@ -25,7 +24,6 @@ const controlSearch = async () => {
 
   // 1. Get the query from the view
   const query = searchView.getInput(); 
-  console.log(query);
 
   if (query) {
     // 2. New search object and add to state
@@ -70,7 +68,6 @@ const controlRecipe = async () => {
 
   // Get the ID from the URL
   const id = window.location.hash.replace('#', '');
-  console.log(id);
 
   if (id) {
     // 1. Prepare the UI for changes
@@ -95,7 +92,7 @@ const controlRecipe = async () => {
 
       // 5. Render Recipe
       clearLoader();
-      recipeView.renderRecipe(state.recipe);
+      recipeView.renderRecipe(state.recipe, state.likes.isLiked(id));
 
     } catch (err) {
       alert('Error processing recipe');
@@ -141,6 +138,8 @@ elements.shopping.addEventListener('click', e => {
 
 
 // LIKE CONTROLLER
+
+
 const controlLike = () => {
   if (!state.likes) state.likes = new Likes();
   const currentID = state.recipe.id;
@@ -155,9 +154,10 @@ const controlLike = () => {
         state.recipe.img
     );
     // 2. Toggle the like button
+    likesView.toggleLikeButton(true);
 
     // 3. Add like to the UI list
-    console.log(state.likes);
+    likesView.renderLike(newLike);
 
   // User has liked current recipe
   } else {
@@ -165,12 +165,27 @@ const controlLike = () => {
     state.likes.deleteLike(currentID)
 
     // 2. Toggle the like button
+    likesView.toggleLikeButton(false);
 
     // 3. Remove like from the UI list
-    console.log(state.likes);
+    likesView.deleteLike(currentID);
   }
+  likesView.toggleLikeMenu(state.likes.getNumLikes());
 };
 
+// Restore liked recipes on page load
+window.addEventListener('load', () => {
+  state.likes = new Likes();
+
+  // Restore likes
+  state.likes.readStorage();
+
+  // Toggle the like menu button
+  likesView.toggleLikeMenu(state.likes.getNumLikes());
+
+  // Render liked recipes
+  state.likes.likes.forEach(like => likesView.renderLike(like));
+});
 
 // Handling recipe button clicks
 elements.recipe.addEventListener('click', e => {
@@ -192,13 +207,3 @@ elements.recipe.addEventListener('click', e => {
     controlLike();
   }
 });
-
-window.l = new List();
-
-
-
-// Однонаправенный поток данных - redux / services 
-// Обязательно почитать 
-// React не покрывает всех фичей
-// React создан для более маленьких приложений, а angular для больших
-// Flux pattern
