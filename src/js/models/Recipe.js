@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { proxy, urlQ, urlID } from '../config';
+import { proxy, urlID } from '../config';
 
 export default class Recipe {
   constructor(id) {
@@ -65,7 +65,7 @@ export default class Recipe {
           count = eval(arrIng[0].replace('-', '+'));
         } else {
           count = eval(arrIng.slice(0, unitIndex).join('+'));
-        };
+        }
 
         objIng = {
           count,
@@ -88,15 +88,14 @@ export default class Recipe {
           unit: '',
           ingredient
         };
-      };
+      }
 
       return objIng;
     });
     this.ingredients = newIngredients;
   }
 
-  upadteServings(type) {
-
+  updateServings(type) {
     // Servings
     const newServings = type === 'dec' ? this.servings - 1 : this.servings + 1;
 
@@ -106,7 +105,6 @@ export default class Recipe {
     });
 
     this.servings = newServings;
-
   }
 };
 
